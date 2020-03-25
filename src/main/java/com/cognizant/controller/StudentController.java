@@ -6,8 +6,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.cognizant.model.Student;
 import com.cognizant.service.StudentServiceImpl;
@@ -23,29 +25,34 @@ public class StudentController {
 	}
 
 	@RequestMapping(value = "insert", method = RequestMethod.GET)
-	public String insertPage() {
+	public ModelAndView insertPage() {
 
-		return "insert";
+		ModelAndView mv = new ModelAndView("insert");
+
+		Student student = new Student();
+
+		mv.addObject("student", student);
+
+		return mv;
 
 	}
 
 	@RequestMapping(value = "insert", method = RequestMethod.POST)
-	public String insert(HttpServletRequest request) {
+	public ModelAndView insert(@ModelAttribute("student") Student student) {
 		// Read the request parameter
-		String id = request.getParameter("id");
-		String name = request.getParameter("name");
-		// Create the student
-		Student student = new Student(id, name);
-		System.out.println(student);
+		System.out.println("Model Attribute:" + student);
 		// insert student to db
 
 		String res = studentService.insert(student);
 
-		if (res.equals("SUCESS"))
-			request.setAttribute("msg", "Record Inserted");
+		ModelAndView mv = new ModelAndView("insert");
+
+		if (res.equals("SUCCESS"))
+			mv.addObject("msg", "Record Inserted");
 		else
-			request.setAttribute("msg", "Record Not Inserted");
-		return "insert";
+			mv.addObject("msg", "Record Not Inserted");
+
+		return mv;
 	}
 
 	@RequestMapping(value = "update", method = RequestMethod.GET)
@@ -59,11 +66,12 @@ public class StudentController {
 	}
 
 	@RequestMapping(value = "getAll", method = RequestMethod.GET)
-	public String getAll(HttpServletRequest request) {
+	public ModelAndView getAll() {
 		List<Student> list = studentService.getAll();
 		System.out.println(list);
-		request.setAttribute("list", list);
-		return "display";
+		ModelAndView mv=new ModelAndView("display");
+		mv.addObject("list", list);
+		return mv;
 	}
 
 }
